@@ -263,10 +263,10 @@ function signOut() {
 					   		$i=0;
 					   		$video_id=$row['video_id'];
 					   		echo '<td>';
-							echo '<a href="index.php?vid='.$video_id.'"><img src='.$row['videothumbnail_path'].'width="250"></a>';
+							echo '<a href="watch.php?vid='.$video_id.'"><img src='.$row['videothumbnail_path'].'width="250"></a>';
 							echo "</td>";
 							echo '<td style="padding:20px;vertical-align:top">';
-							echo '<a href="index.php?vid='.$video_id.'">'.$row['video_name'].'</a><br>';
+							echo '<a href="watch.php?vid='.$video_id.'">'.$row['video_name'].'</a><br>';
 							echo "<div style='margin-top:5px;'><font size='2.5' color='grey' >".$row['user_username']."</font></div>";
 							echo "<div style='margin-top:5px;'><font size='2.5' color='grey' >".$row['views']." Views</font></div>";
 							echo '</td>';
