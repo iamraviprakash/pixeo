@@ -19,6 +19,19 @@
 	ul{
 		padding-left: 20px;
 	}
+	table {
+	    border-collapse: separate;
+	    border: 0px solid black;
+	    table-layout: fixed;
+	    color:#4d94ff;
+	    font-size: 19px;
+	} 
+	td{
+	    word-wrap: break-word;         /* All browsers since IE 5.5+ */
+	    overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+	    border: 0px solid black;
+	    height:180px;
+	}
 	.container-fluid{
 		margin: 0px;
 	}
@@ -30,21 +43,27 @@
 		padding-top: 10px;
 		min-height: 50px;
 		max-height: 55px;
+		z-index: 1;
 	}
 	#signout{
-		background: white;
+		background: #66a3ff;
 		border-width: 0px;
 		width:90px;
 		height:30px;
-		color: grey;
+		color: white;
 		font-size: 0.9em;
 	}
 	#sidepane{
 		position: fixed;
 		height:90vh;
 		background-color:white;
-		margin-top: 10vh;
 		padding-top: 10px;
+		max-width: 216px;
+		min-width: 210px;
+	}
+	#main{
+		margin-top: 60px;
+		
 	}
 	.sidepane-button{
 		color:#666666;
@@ -56,39 +75,149 @@
 		text-align: left;
 	}
 	#home{
-		background: #66a3ff;
+		background: grey;
 		color: white;
+	}
+	#disc{
+		width:30px;
+		height:30px;
+		border-radius: 15px;
+		border-width: 0px;
+		padding: 0px;
+		display: none;
+	}
+	#box{
+		width:180px;
+		height:200px;
+		background: white;
+		padding: 10px;
+		display: none;
+		color:grey;
+		position: relative;
+		right:150px;
+		box-shadow: 0.5px 0.5px 0.5px 1px grey;
+	}
+	#main-body{
+		background: white;
+		min-height:90vh;
+		margin-left: 250px;
+		
+	}
+	#header-searchbar{
+		border-width: 0px;
+		width:70%;
+		height:30px;
+		border-radius: 1px;
+		padding-left: 5px;
+		color: grey;
+		font-size: 1.15em;
+	}
+	#header-searchbutton{
+		background: white;
+		border-width: 0px;
+		color:grey;
+		width:30px;
+		height:30px;
+		border-radius: 1px;
+	}
+	#header-search{
+		text-align: center;
+	}
+	#logo-text{
+		font-size:20px;
+		color:white;
+		margin-right:5px;
+	}
+	#imgsrc{
+		border-radius: 15px;
+	}
+	#box-img{
+		border-radius: 20px;
+	}
+	#header-upload,#header-profile{
+		text-align: center;
+	}
+	#header-uploadbutton{
+		background: none;
+		border-width: 0px;
+		color: white;
+		width:30px;
+		height: 30px;
 	}
 </style>
 <script>
+var count=0;
+document.cookie = "username=''";
 function onSignIn(googleUser) {
 	  var profile = googleUser.getBasicProfile();
-	  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-	  console.log('Name: ' + profile.getName());
-	  console.log('Image URL: ' + profile.getImageUrl());
-	  console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+	  //console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+	  //console.log('Name: ' + profile.getName());
+	  //console.log('Image URL: ' + profile.getImageUrl());
+	  //console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+	  //xmlhttp.open("GET", "userdata.php?u_email=" +email+"&u_name="+email1+"&name="+name, true);
+	  var username=profile.getEmail();
+	  var ind=username.indexOf('@');
+	  username=username.substring(0, ind);
+	  var xmlhttp = new XMLHttpRequest();
+	  xmlhttp.open("GET", "userdata.php?user_profilepic="+profile.getImageUrl()+"&user_email="+profile.getEmail()+"&user_username="+username+"&user_name="+profile.getName(), true);
+      xmlhttp.send();
+	  document.getElementById("imgsrc").src=googleUser.getBasicProfile().getImageUrl();
+	  document.getElementById("box-img").src=googleUser.getBasicProfile().getImageUrl();
+	  document.getElementById("box-name").innerHTML=profile.getName();
+	  document.getElementById("box-email").innerHTML=profile.getEmail();
+	  document.cookie = "username="+username;
+	  document.getElementById("signin").style.display="none";
+	  document.getElementById("disc").style.display="block";
+	  //console.log(document.cookie);
 }
 function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.disconnect().then(function () {
       console.log('User signed out.');
+      document.cookie = "username=''";
+      location.reload();
     });
+    
+  }
+  function disp(){
+  	if(count%2==0)
+  	{
+  		document.getElementById("box").style.display="block";
+  		
+  	}
+  	else{
+  		document.getElementById("box").style.display="none";
+  	}
+  	count++;
   }
 </script>
 <body>
 	<div class="container-fluid">
 		<div class="row" id="header">
-			<div class="col-xs-8">
+			<div class="col-xs-9">
+				<form action="search.php" id="header-search">
+					<font id="logo-text">PI<b>X</b>EO</font><input type="text" placeholder="Search" name="field" id="header-searchbar">
+					<button  id="header-searchbutton"><span class="glyphicon glyphicon-search"></span></button>
+				</form>
 			</div>
-			<div class="col-xs-1">
-				<span class="g-signin2" data-onsuccess="onSignIn" style="width:90px;height:30px;">
-				</span>
+			<div class="col-xs-1" id="header-upload">
+				<button id="header-uploadbutton"><span class="glyphicon glyphicon-open"></span></button>
 			</div>
-			<div class="col-xs-1">
-				<button onclick="signOut()" id="signout">Sign Out</button>
+			<div class="col-xs-2" id="header-profile">
+				<button id="disc" onclick="disp()"><img src="" id="imgsrc" width="30"></button>
+				<span class="g-signin2" data-onsuccess="onSignIn" style="width:90px;height:30px;" id="signin"></span>
+				<div id="box">
+					<img src="" id="box-img" width="40">
+					<br>
+					<br>
+					<div id="box-name"></div>
+					<div id="box-email"></div>
+					<hr>
+					<button onclick="signOut()" id="signout">Sign Out</button>
+				</div>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row" id="main">
 			<div class="col-xs-2" id="sidepane">
 				<ul type="none">
 					<li><a href="index.php"><button class="sidepane-button" id="home"><span class="glyphicon glyphicon-home"></span> Home</button></a></li>
@@ -100,7 +229,8 @@ function signOut() {
 					<hr>
 				</ul>
 			</div>
-			<div class="col-xs-9">
+			<div class="col-xs-7" id="main-body">
+				
 			</div>
 		</div>
 	</div>
