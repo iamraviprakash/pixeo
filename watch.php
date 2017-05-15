@@ -10,13 +10,14 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<link rel="stylesheet" href="pixeostyle.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="pixeostyle.css">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<meta name="google-signin-client_id" content="545353333488-qda3stvg095h0nrm5kjt5ulkr6r5nk6i.apps.googleusercontent.com">
 	<script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <style>
+	
 	#main-body{
 		background: none;
 		min-height:90vh;
@@ -129,7 +130,7 @@ function onSignIn(googleUser) {
 	  document.getElementById("signin").style.display="none";
 	  document.getElementById("disc").style.display="block";
 	  calltype(4);
-	  console.log(document.cookie);
+	  //console.log(document.cookie);
 
 	  
 }
@@ -142,6 +143,21 @@ function signOut() {
     });
     
   }
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return null;
+}
 function disp(){
   	if(count%2==0)
   	{
@@ -166,35 +182,37 @@ function sendtoserver(varurl,varfunction)
 }
 function calltype(type)
 {
-	var username=document.cookie;
+	//var username=document.cookie;
 	var varurl;
-	username=username.split(";");
-	username=username[1].split("=");
+	//username=username.split(";");
+	//username=username[1].split("=");
+	var username=getCookie('username');
 	var v_id=window.location.href;
 	v_id=v_id.split("?");
 	v_id=v_id[1].split("=");
-	if(username[1]!='')
+	console.log(username);
+	if(username!="''" && username!=null)
 	{
 		if(type==1)
 		{
-			varurl="userdata.php?value=like&u_name="+username[1]+"&v_id="+v_id[1];
+			varurl="userdata.php?value=like&u_name="+username+"&v_id="+v_id[1];
 			sendtoserver(varurl,setlikedislike);
 		}
 		else if(type==2)
 		{
-			varurl="userdata.php?value=dislike&u_name="+username[1]+"&v_id="+v_id[1];
+			varurl="userdata.php?value=dislike&u_name="+username+"&v_id="+v_id[1];
 			sendtoserver(varurl,setlikedislike);
 		}
 		else if(type==3)
 		{
 			var text=document.getElementById("comment-box").value;
 			//document.getElementById("myTextarea").disabled = true;
-			varurl="userdata.php?value=comment&u_name="+username[1]+"&v_id="+v_id[1]+"&text="+text;
+			varurl="userdata.php?value=comment&u_name="+username+"&v_id="+v_id[1]+"&text="+text;
 			sendtoserver(varurl,setcomment);
 		}
 		else if(type==4)
 		{
-			varurl="userdata.php?value=views&u_name="+username[1]+"&v_id="+v_id[1];
+			varurl="userdata.php?value=views&u_name="+username+"&v_id="+v_id[1];
 			console.log("hello");
 			sendtoserver(varurl,setviews);
 		}
