@@ -17,6 +17,12 @@
 	<script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <style>
+	#main-body{
+		background: none;
+		min-height:90vh;
+		margin-left: 250px;
+		padding: 0px;
+	}
 	#video-screen{
 		width:100%;
 		height: 100%;
