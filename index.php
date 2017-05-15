@@ -7,142 +7,16 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="pixeostyle.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<meta name="google-signin-client_id" content="545353333488-qda3stvg095h0nrm5kjt5ulkr6r5nk6i.apps.googleusercontent.com">
 	<script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <style>
-	body{
-		background-color: #f7f7f7;
-	}
-	ul{
-		padding-left: 20px;
-	}
-	table {
-	    border-collapse: separate;
-	    border: 0px solid black;
-	    table-layout: fixed;
-	    color:#4d94ff;
-	    font-size: 19px;
-	} 
-	td{
-	    word-wrap: break-word;         /* All browsers since IE 5.5+ */
-	    overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
-	    border: 0px solid black;
-	    height:180px;
-	}
-	.container-fluid{
-		margin: 0px;
-	}
-	#header{
-		position: fixed;
-		background: #66a3ff;
-		height: 8vh;
-		width:100vw;
-		padding-top: 10px;
-		min-height: 50px;
-		max-height: 55px;
-		z-index: 1;
-	}
-	#signout{
-		background: #66a3ff;
-		border-width: 0px;
-		width:90px;
-		height:30px;
-		color: white;
-		font-size: 0.9em;
-	}
-	#sidepane{
-		position: fixed;
-		height:90vh;
-		background-color:white;
-		padding-top: 10px;
-		max-width: 216px;
-		min-width: 210px;
-	}
-	#main{
-		margin-top: 60px;
-		
-	}
-	.sidepane-button{
-		color:#666666;
-		border-width:0px;
-		background: none;
-		height:35px;
-		width:100%;
-		font-size: 1.1em;
-		text-align: left;
-	}
 	#home{
 		background: grey;
 		color: white;
-	}
-	#disc{
-		width:30px;
-		height:30px;
-		border-radius: 15px;
-		border-width: 0px;
-		padding: 0px;
-		display: none;
-	}
-	#box{
-		width:180px;
-		height:200px;
-		background: white;
-		padding: 10px;
-		display: none;
-		color:grey;
-		position: relative;
-		right:150px;
-		box-shadow: 0.5px 0.5px 0.5px 1px grey;
-	}
-	#main-body{
-		background: white;
-		min-height:90vh;
-		margin-left: 250px;
-		
-	}
-	#header-searchbar{
-		border-width: 0px;
-		width:70%;
-		height:30px;
-		border-radius: 1px;
-		padding-left: 5px;
-		color: grey;
-		font-size: 1.15em;
-	}
-	#header-searchbutton{
-		background: white;
-		border-width: 0px;
-		color:grey;
-		width:30px;
-		height:30px;
-		border-radius: 1px;
-	}
-	#header-search{
-		text-align: center;
-	}
-	#logo-text{
-		font-size:20px;
-		color:white;
-		margin-right:5px;
-	}
-	#imgsrc{
-		border-radius: 15px;
-	}
-	#box-img{
-		border-radius: 20px;
-	}
-	#header-upload,#header-profile{
-		text-align: center;
-	}
-	#header-uploadbutton{
-		background: none;
-		border-width: 0px;
-		color: white;
-		width:30px;
-		height: 30px;
 	}
 </style>
 <script>
@@ -201,7 +75,7 @@ function signOut() {
 				</form>
 			</div>
 			<div class="col-xs-1" id="header-upload">
-				<button id="header-uploadbutton"><span class="glyphicon glyphicon-open"></span></button>
+				<a href="upload.php"><button id="header-uploadbutton"><span class="glyphicon glyphicon-open"></span></button></a>
 			</div>
 			<div class="col-xs-2" id="header-profile">
 				<button id="disc" onclick="disp()"><img src="" id="imgsrc" width="30"></button>
