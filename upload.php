@@ -1,3 +1,6 @@
+<?php if($_COOKIE['username']!="''")
+		{
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,149 +10,23 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="pixeostyle.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<meta name="google-signin-client_id" content="545353333488-qda3stvg095h0nrm5kjt5ulkr6r5nk6i.apps.googleusercontent.com">
 	<script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <style>
-	body{
-		background-color: #f7f7f7;
-	}
-	ul{
-		padding-left: 20px;
-	}
-	table {
-	    border-collapse: separate;
-	    border: 0px solid black;
-	    table-layout: fixed;
-	    color:#4d94ff;
-	    font-size: 19px;
-	} 
-	td{
-	    word-wrap: break-word;         /* All browsers since IE 5.5+ */
-	    overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
-	    border: 0px solid black;
-	    height:180px;
-	}
-	.container-fluid{
-		margin: 0px;
-	}
-	#header{
-		position: fixed;
-		background: #66a3ff;
-		height: 8vh;
-		width:100vw;
-		padding-top: 10px;
-		min-height: 50px;
-		max-height: 55px;
-		z-index: 1;
-	}
-	#signout{
-		background: #66a3ff;
-		border-width: 0px;
-		width:90px;
-		height:30px;
-		color: white;
-		font-size: 0.9em;
-	}
-	#sidepane{
-		position: fixed;
-		height:90vh;
-		background-color:white;
-		padding-top: 10px;
-		max-width: 216px;
-		min-width: 210px;
-	}
-	#main{
-		margin-top: 60px;
-		
-	}
-	.sidepane-button{
-		color:#666666;
-		border-width:0px;
-		background: none;
-		height:35px;
-		width:100%;
-		font-size: 1.1em;
-		text-align: left;
-	}
-	#home{
-		background: grey;
-		color: white;
-	}
-	#disc{
-		width:30px;
-		height:30px;
-		border-radius: 15px;
-		border-width: 0px;
-		padding: 0px;
-		display: none;
-	}
-	#box{
-		width:180px;
-		height:200px;
-		background: white;
-		padding: 10px;
-		display: none;
-		color:grey;
-		position: relative;
-		right:150px;
-		box-shadow: 0.5px 0.5px 0.5px 1px grey;
-	}
-	#main-body{
-		background: white;
-		min-height:90vh;
-		margin-left: 250px;
-		
-	}
-	#header-searchbar{
-		border-width: 0px;
-		width:70%;
-		height:30px;
-		border-radius: 1px;
-		padding-left: 5px;
-		color: grey;
-		font-size: 1.15em;
-	}
-	#header-searchbutton{
-		background: white;
-		border-width: 0px;
-		color:grey;
-		width:30px;
-		height:30px;
-		border-radius: 1px;
-	}
-	#header-search{
-		text-align: center;
-	}
-	#logo-text{
-		font-size:20px;
-		color:white;
-		margin-right:5px;
-	}
-	#imgsrc{
-		border-radius: 15px;
-	}
-	#box-img{
-		border-radius: 20px;
-	}
-	#header-upload,#header-profile{
-		text-align: center;
-	}
-	#header-uploadbutton{
-		background: none;
-		border-width: 0px;
-		color: white;
-		width:30px;
-		height: 30px;
-	}
 	#upload-area{
 		margin-left: 200px;
 		margin-top: 200px;
 	}
 	#upload-result{
 		text-align: center;
+	}
+	#myspace{
+		background: grey;
+		color: white;
 	}
 </style>
 <script>
@@ -227,9 +104,9 @@ function signOut() {
 		<div class="row" id="main">
 			<div class="col-xs-2" id="sidepane">
 				<ul type="none">
-					<li><a href="index.php"><button class="sidepane-button" id="home"><span class="glyphicon glyphicon-home"></span> Home</button></a></li>
+					<li><a href="index.php"><button class="sidepane-button"><span class="glyphicon glyphicon-home"></span> Home</button></a></li>
 					<li><a href="trending.php"><button class="sidepane-button"><span class="glyphicon glyphicon-fire"></span> Trending</button></a></li>
-					<li><a href="myspace.php"><button class="sidepane-button"><span class="glyphicon glyphicon-user"></span> Myspace</button></a></li>
+					<li><a href="myspace.php"><button class="sidepane-button" id="myspace"><span class="glyphicon glyphicon-user"></span> Myspace</button></a></li>
 					<li><a href="history.php"><button class="sidepane-button"><span class="glyphicon glyphicon-hourglass"></span> History</button></a></li>
 					<hr>
 					<li><a href="liked_videos.php"><button class="sidepane-button"><span class="glyphicon glyphicon-thumbs-up"></span> Liked Videos</button></a></li>
@@ -241,6 +118,7 @@ function signOut() {
 					<form action="upload.php" method="post" enctype="multipart/form-data">
 					    Select video to upload:
 					    <input type="file" name="fileToUpload" id="browse-button">
+					    Change Name:<input type="text" name="filename">(leave blank for default)<br>
 					    <input type="submit" name="submit" id="upload-button">
 					</form>
 				</div>
@@ -248,11 +126,12 @@ function signOut() {
 				<br>
 				<div id="upload-result">
 					<?php
-						if(isset($_GET['fileToUpload']))
+						//if(isset($_POST['fileToUpload']))
+						
+						$target_dir = "/var/www/pixeo/Videos/";
+						$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+						if($_FILES["fileToUpload"]["name"]!="")
 						{
-							$target_dir = "/var/www/pixeo/Videos/";
-							$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-							//echo $_FILES["fileToUpload"]["name"];
 							$servername = "localhost";
 							$username = "root";
 							$password = "ravi";
@@ -262,6 +141,9 @@ function signOut() {
 							if ($conn->connect_error) {
 							    die("Connection failed: " . $conn->connect_error);
 							}
+							//echo "hello";
+							if($_POST['filename']!='')
+								$target_file = $target_dir.$_POST['filename'];
 							$uploadOk = 1;
 							if ($uploadOk == 0) {
 							    echo "Sorry, your file was not uploaded.";
@@ -276,8 +158,11 @@ function signOut() {
 								 	while($row=$result->fetch_assoc()) 
 								   	{
 								   		$user_id=$row['user_id'];
+								   		echo $user_id;
 								   	}
 								   	$videoname=$_FILES["fileToUpload"]["name"];
+								   	if($_POST['filename']!='')
+										$videoname = $_POST['filename'];
 								   	$thumbnailpath="'Thumbnails/".substr($videoname,0,strlen($videoname)-3)."jpg'";
 								   	$videopath="'Videos/".$videoname."'";
 								   	$exec_ffmpeg="ffmpeg -i ".$videopath." -ss 00:00:10 -vframes 1 ".$thumbnailpath;
@@ -293,7 +178,9 @@ function signOut() {
 							        echo "Sorry, there was an error uploading your file.";
 							    }
 							}
+							$conn->close();
 						}
+						
 					?>
 				</div>
 			</div>
@@ -301,3 +188,7 @@ function signOut() {
 	</div>
 </body>
 </html>
+<?php }
+	else
+		header('Location:index.php');
+ ?>
