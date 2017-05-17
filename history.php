@@ -127,7 +127,7 @@ function signOut() {
 				$sql = "select b.views views,c.user_username user_username,b.videothumbnail_path videothumbnail_path,
 					b.video_id video_id,b.video_name video_name from history a 
 					join videos b on a.video_id=b.video_id 
-					join GUser c on c.user_id=a.user_id where a.user_id=$uid order by a.watch_time desc;";
+					join GUser c on c.user_id=b.user_id where a.user_id=$uid order by a.watch_time desc;";
 				//$sql = "select views,user_username,videothumbnail_path,video_id,video_name;"
 				if($sql!="")
 				{
