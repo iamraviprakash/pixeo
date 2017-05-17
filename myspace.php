@@ -25,9 +25,9 @@
 		width:100%;
 		height:30vh;
 		background: grey;
-		
+		min-height: 200px;
 		text-align: center;
-		padding-top: 5vh;
+		padding-top: 50px;
 	}
 	#profilepic{
 		border: 2px solid white;
