@@ -23,11 +23,10 @@ body{
 	#header{
 		position: fixed;
 		background: #66a3ff;
-		height: 8vh;
 		width:100vw;
 		padding-top: 10px;
-		min-height: 50px;
-		max-height: 55px;
+		height: 50px;
+		min-width:485px; 
 		z-index: 1;
 	}
 	#signout{
@@ -88,7 +87,7 @@ body{
 	}
 	#header-searchbar{
 		border-width: 0px;
-		width:70%;
+		width:65%;
 		height:30px;
 		border-radius: 1px;
 		padding-left: 5px;
@@ -126,8 +125,4 @@ body{
 		color: white;
 		width:30px;
 		height: 30px;
-	}
-	.sidepane-button:hover{
-		background: #66a3ff;
-		color: white;
 	}
