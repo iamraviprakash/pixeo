@@ -18,15 +18,56 @@
 </head>
 <style>
 	#upload-area{
-		margin-left: 200px;
-		margin-top: 200px;
+		text-align: center;
+		margin-top: 20px;
 	}
 	#upload-result{
 		text-align: center;
 	}
+	input[type=file]{
+		display: inline-block;
+		border: 2px solid #66a3ff; 
+	}
+	#upload-button{
+		background: none;
+		color: grey;
+		border: 2px solid #66a3ff;
+		width:120px;
+		height:40px;
+		font-size: 1.2em;
+	}
 	#myspace{
 		background: grey;
 		color: white;
+	}
+	textarea{
+		resize:none;
+	}
+	#myspace{
+		background: grey;
+		color: white;
+	}
+	#main-body-header{
+		width:100%;
+		height:30vh;
+		background: grey;
+		
+		text-align: center;
+		padding-top: 5vh;
+	}
+	#profilepic{
+		border: 2px solid white;
+	}
+	#profilename{
+		color:white;
+		font-size: 1.4em;
+		font-weight: bold;
+	}
+	#main-body-linkpanel{
+		color:#66a3ff;
+		font-size: 1em;
+		font-weight: bold;
+		text-align: center;
 	}
 </style>
 <script>
@@ -52,6 +93,8 @@ function onSignIn(googleUser) {
 	  document.cookie = "username="+username;
 	  document.getElementById("signin").style.display="none";
 	  document.getElementById("disc").style.display="block";
+	  document.getElementById("profilename").innerHTML=profile.getName();
+	  document.getElementById("profilepic").src=profile.getImageUrl();
 	  //console.log(document.cookie);
 }
 function signOut() {
@@ -113,13 +156,33 @@ function signOut() {
 					<hr>
 				</ul>
 			</div>
-			<div class="col-xs-7" id="main-body">
+			<div class="col-xs-9" id="main-body">
+				<div id="main-body-header">
+					<img id="profilepic" src="" width="80">
+					<br>
+					<br>
+					<div id="profilename"></div>
+				</div>
+				<div id="main-body-linkpanel">
+					<a href="upload.php"><u>Upload</u></a>&nbsp;&nbsp;<a href="uploaded.php">Uploaded</a>&nbsp;&nbsp;
+					<a href="statistics.php">Stats</a>
+				</div>
 				<div id="upload-area">
 					<form action="upload.php" method="post" enctype="multipart/form-data">
-					    Select video to upload:
+					    Select a video to upload:
+					    <br>
+					    <br>
 					    <input type="file" name="fileToUpload" id="browse-button">
-					    Change Name:<input type="text" name="filename">(leave blank for default)<br>
-					    <input type="submit" name="submit" id="upload-button">
+					    <br>
+					    <br>
+					    <input type="text" name="filename" placeholder="Change Name"><br>
+					    (Note:leave blank for default file name)
+					    <br>
+					    <br>
+					    <textarea name="description" placeholder="Video Description" rows="4" cols="50"></textarea>
+					    <br>
+					    <br>
+					    <input type="submit" name="submit" id="upload-button" value="Upload">
 					</form>
 				</div>
 				<br>
@@ -155,22 +218,31 @@ function signOut() {
 							        $username=$_COOKIE['username'];
 									$sql="select user_id from GUser where user_username='".$username."';";
 									$result=$conn->query($sql);
+									$description="";
 								 	while($row=$result->fetch_assoc()) 
 								   	{
 								   		$user_id=$row['user_id'];
-								   		echo $user_id;
 								   	}
 								   	$videoname=$_FILES["fileToUpload"]["name"];
 								   	if($_POST['filename']!='')
 										$videoname = $_POST['filename'];
+									if($_POST['description']!='')
+										$description=$_POST['description'];
 								   	$thumbnailpath="'Thumbnails/".substr($videoname,0,strlen($videoname)-3)."jpg'";
 								   	$videopath="'Videos/".$videoname."'";
 								   	$exec_ffmpeg="ffmpeg -i ".$videopath." -ss 00:00:10 -vframes 1 ".$thumbnailpath;
 						    		exec($exec_ffmpeg);
+						   
+						    		$exec_ffprobe="ffprobe -v error -show_entries format=size -of default=noprint_wrappers=1:nokey=1 ".$videopath;
+						    		$video_size=(float)exec($exec_ffprobe);
+						    		$video_size=$video_size/1000000;
+
 						    		$thumbnailpath="\'Thumbnails/".substr($videoname,0,strlen($videoname)-3)."jpg\'";
 						    		$videopath="\'Videos/".$videoname."\'";
-								   	$sql="insert into videos(video_name,video_path,user_id,videothumbnail_path) values ('$videoname','$videopath',$user_id,'$thumbnailpath');";
-								   	$conn->query($sql);
+						    		$videoname=substr($videoname,0,strlen($videoname)-4);
+								   	$sql="insert into videos(video_name,video_path,user_id,videothumbnail_path,video_size,video_description) 
+								   	values ('$videoname','$videopath',$user_id,'$thumbnailpath',$video_size,'$description');";
+								    $conn->query($sql);
 								   	echo "uploaded successfully";
 
 							    } 
