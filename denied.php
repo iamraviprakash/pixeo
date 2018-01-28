@@ -1,19 +1,21 @@
-<?php 
+<?php
 header("Cache-Control: no-store, must-revalidate, max-age=0");
-header("Pragma: no-cache");
-if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
-{
-	$servername = "localhost";
-	$username = "pixeo_user";
-	$password = "user@123";
-	$dbname = "pixeo";
+header("Pragma: no-cache"); 
+$servername = "localhost";
+$username = "pixeo_user";
+$password = "user@123";
+$dbname = "pixeo";
 			
-	$conn = new mysqli($servername, $username, $password, $dbname);
-	if ($conn->connect_error) {
-	    die("Connection failed: " . $conn->connect_error);
-	}
-	$sql="select admin from GUser where user_username='".$_COOKIE['username']."'";
-	$result = $conn->query($sql);
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+$sql="select admin from GUser where user_username='".$_COOKIE['username']."'";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+
+if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0 && $row['admin']=='Y')
+{
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,10 +34,6 @@ if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
 	<script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <style>
-	#myspace{
-		background: grey;
-		color: white;
-	}
 	#main-body-header{
 		width:100%;
 		height:30vh;
@@ -43,14 +41,6 @@ if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
 		min-height: 200px;
 		text-align: center;
 		padding-top: 50px;
-	}
-	#profilepic{
-		border: 2px solid white;
-	}
-	#profilename{
-		color:white;
-		font-size: 1.4em;
-		font-weight: bold;
 	}
 	#main-body-content{
 		color: grey;
@@ -61,6 +51,7 @@ if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
 		font-size: 1em;
 		font-weight: bold;
 		text-align: center;
+		margin-top: 10px;
 	}
 	#welcome-content{
 		width:100%;
@@ -71,6 +62,15 @@ if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
 	#uploaded-content,#stats-content,#upload-content{
 		width: 100%;
 		font-size: 1em;
+	}
+	table {
+	    font-size: 1.1em;
+	} 
+	td{
+	    height:135px;
+	}
+	.td-thumbnail{
+	    width:200px;
 	}
 </style>
 <script>
@@ -99,8 +99,7 @@ function onSignIn(googleUser) {
 		  document.cookie = "username="+username;
 		  document.getElementById("signin").style.display="none";
 		  document.getElementById("disc").style.display="block";
-		  document.getElementById("profilename").innerHTML=profile.getName();
-		  document.getElementById("profilepic").src=profile.getImageUrl();
+		  
 		  //console.log(document.cookie);
 	  }
 	  else{
@@ -127,11 +126,25 @@ function signOut() {
   	}
   	count++;
   }
+function Allow(vid,var_this,uname)
+{
+	var stat=var_this.innerHTML;
+	if(stat=='Allow')
+	{
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+	    	if (this.readyState == 4 && this.status == 200) {
+	     		var_this.innerHTML=this.responseText;
+	    	}
+	  	};
+	  	var varurl="userdata.php?value=allow&v_id="+vid+"&u_name="+uname;
+	    xhttp.open("GET",varurl,true);
+	    xhttp.send();
+	}
+	
+}
 </script>
 <body>
-	<?php
-				
-	?>
 	<div class="container-fluid">
 		<div class="row" id="header">
 			<div class="col-xs-9">
@@ -155,14 +168,7 @@ function signOut() {
 					<div id="box-email"></div>
 					<hr>
 					<?php
-					if($result->num_rows>0)
-					{
-						$row = $result->fetch_assoc();
-						if($row['admin']=='Y')
-						{
-							echo "<a href='admin.php'><button id='adminButton'>Admin</button></a><br><br>";
-						}
-					}
+						echo "<a href='admin.php'><button id='adminButton'>Admin</button></a><br><br>";
 					?>
 					<button onclick="signOut()" id="signout">Sign Out</button>
 				</div>
@@ -194,48 +200,55 @@ function signOut() {
 						<button class="categoryButton">'.substr($row['category_name'],0,20).'</button>
 						</a></li>';
 					}
-					$conn->close();
 				?>			
 				</ul>
 			</div>
 			<div class="col-xs-9" id="main-body">
-				<div id="main-body-header">
-					<img id="profilepic" src="" width="80">
-					<br>
-					<br>
-					<div id="profilename"></div>
-				</div>
 				<div id="main-body-linkpanel">
-					<a href="upload.php">Upload</a>&nbsp;&nbsp;<a href="uploaded.php">Uploaded</a>&nbsp;&nbsp;
-					<a href="statistics.php">Stats</a>
+					<a href="admin.php">Manage</a>&nbsp;&nbsp;<a href="newUploads.php">New Uploads</a>&nbsp;&nbsp;<a href="allowed.php">Allowed</a>&nbsp;&nbsp;<a href="denied.php"><u>Denied</u></a>
 				</div>
 				<div id="main-body-content">
-					<br>
-					<div id="welcome-content">
-						HEY! THIS IS YOUR CONTROL SPACE. <br>HERE YOU CAN FIND AND EDIT WHAT YOU HAVE DONE TILL NOW.
-					</div>
-					<hr>
-					<div id="upload-content">
-						
-						<b>UPLOAD : </b>
-						In this page you can upload the vidoes which you want to share with others.	
-						
-					</div>
-					<hr>
-					<div id="uploaded-content">
-						
-						<b>UPLOADED : </b>
-						In this page you can see and delete the vidoes which you have uploaded.
-						
-					</div>
-					<hr>
-					<div id="stats-content">
-						
-						<b>STATS : </b>
-						In this page you can see your upload statistics in numbers and graph.	
-						
-					</div>
-					<hr>
+				<?php
+				$uname="'".$_COOKIE['username']."'";
+				$sql = "select b.remarks remarks,b.views views,c.user_username user_username,b.upload_time upload_time,
+					b.videothumbnail_path videothumbnail_path,
+					b.video_id video_id,b.video_name video_name from videos b 
+					join GUser c on c.user_id=b.user_id where b.status='D' order by b.upload_time desc;";
+				//$sql = "select views,user_username,videothumbnail_path,video_id,video_name;"
+				if($sql!="")
+				{
+					$result = $conn->query($sql);
+					//echo "<div style='left:850px;top:0px;position:absolute;color:grey;padding-top:30px;'>No of results:".$result->num_rows."</div><br>";
+					$c_name = $result->fetch_fields();
+					if ($result->num_rows > 0) 
+					{	echo "<hr>";
+						echo "<table cellpadding='20'>";
+					   	while($row=$result->fetch_assoc()) 
+					   	{
+					   		echo "<tr>";
+					   		$video_id=$row['video_id'];
+					   		echo '<td class="td-thumbnail">';
+							echo '<a href="watch.php?vid='.$video_id.'"><img src='.$row['videothumbnail_path'].'width="200" height="112"></a>';
+							echo "</td>";
+							echo '<td style="padding:20px;vertical-align:top" class="td-details">';
+							echo '<a href="watch.php?vid='.$video_id.'">'.$row['video_name'].'</a><br>';
+							echo "<div><font size='2.5' color='grey' >".$row['views']." Views</font></div>";
+							echo "<div><font size='2.5' color='grey' >".$row['user_username']."</font> , <font size='2.5' color='grey' >".$row['upload_time']."</font></div><br>";
+							echo '<button class="delete-button" onclick="Allow('.$video_id.',this,'.$uname.')">Allow</button>';
+							echo "&nbsp;".$row['remarks'];
+							echo '</td>';
+					   		echo "</tr>";
+						}
+						echo "</table>";
+					} 
+					else 
+					{
+				   		echo "<br><br><center>OOPS! No videos found.</center>";
+					}
+				}
+				$conn->close();
+				?>
+
 				</div>
 				<div id="site-description">
 					<img src="pixeo.png" width="80">

@@ -1,5 +1,19 @@
-<?php if($_COOKIE['username']!="''")
-		{
+<?php
+header("Cache-Control: no-store, must-revalidate, max-age=0");
+header("Pragma: no-cache"); 
+if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
+{
+	$servername = "localhost";
+	$username = "pixeo_user";
+	$password = "user@123";
+	$dbname = "pixeo";
+			
+	$conn = new mysqli($servername, $username, $password, $dbname);
+	if ($conn->connect_error) {
+	    die("Connection failed: " . $conn->connect_error);
+	}
+	$sql="select admin from GUser where user_username='".$_COOKIE['username']."'";
+	$result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,6 +22,7 @@
 		Pixeo | A Video Sharing Hub
 	</title>
 	<meta charset="utf-8">
+	<link rel="shortcut icon" href="pixeo.png">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="pixeostyle.css">
@@ -78,20 +93,27 @@ function onSignIn(googleUser) {
 	  //xmlhttp.open("GET", "userdata.php?u_email=" +email+"&u_name="+email1+"&name="+name, true);
 	  var username=profile.getEmail();
 	  var ind=username.indexOf('@');
-	  username=username.substring(0, ind);
-	  var xmlhttp = new XMLHttpRequest();
-	  xmlhttp.open("GET", "userdata.php?user_profilepic="+profile.getImageUrl()+"&user_email="+profile.getEmail()+"&user_username="+username+"&user_name="+profile.getName(), true);
-      xmlhttp.send();
-	  document.getElementById("imgsrc").src=googleUser.getBasicProfile().getImageUrl();
-	  document.getElementById("box-img").src=googleUser.getBasicProfile().getImageUrl();
-	  document.getElementById("box-name").innerHTML=profile.getName();
-	  document.getElementById("box-email").innerHTML=profile.getEmail();
-	  document.cookie = "username="+username;
-	  document.getElementById("signin").style.display="none";
-	  document.getElementById("disc").style.display="block";
-	  document.getElementById("profilename").innerHTML=profile.getName();
-	  document.getElementById("profilepic").src=profile.getImageUrl();
-	  //console.log(document.cookie);
+	  var domain=username.substring(ind+1);
+	  if(domain=='iiits.in')
+	  {
+		  username=username.substring(0, ind);
+		  var xmlhttp = new XMLHttpRequest();
+		  xmlhttp.open("GET", "userdata.php?user_profilepic="+profile.getImageUrl()+"&user_email="+profile.getEmail()+"&user_username="+username+"&user_name="+profile.getName(), true);
+	      xmlhttp.send();
+		  document.getElementById("imgsrc").src=googleUser.getBasicProfile().getImageUrl();
+		  document.getElementById("box-img").src=googleUser.getBasicProfile().getImageUrl();
+		  document.getElementById("box-name").innerHTML=profile.getName();
+		  document.getElementById("box-email").innerHTML=profile.getEmail();
+		  document.cookie = "username="+username;
+		  document.getElementById("signin").style.display="none";
+		  document.getElementById("disc").style.display="block";
+		  document.getElementById("profilename").innerHTML=profile.getName();
+		  document.getElementById("profilepic").src=profile.getImageUrl();
+		  //console.log(document.cookie);
+	  }
+	  else{
+	  	signOut();
+	  }
 }
 
 
@@ -117,9 +139,7 @@ function signOut() {
   	}
   	count++;
   }
-
 </script>
-
 <body>
 	<div class="container-fluid">
 		<div class="row" id="header">
@@ -142,6 +162,16 @@ function signOut() {
 					<div id="box-name"></div>
 					<div id="box-email"></div>
 					<hr>
+					<?php
+					if($result->num_rows>0)
+					{
+						$row = $result->fetch_assoc();
+						if($row['admin']=='Y')
+						{
+							echo "<a href='admin.php'><button id='adminButton'>Admin</button></a><br><br>";
+						}
+					}
+					?>
 					<button onclick="signOut()" id="signout">Sign Out</button>
 				</div>
 			</div>
@@ -157,6 +187,23 @@ function signOut() {
 					<li><a href="liked_videos.php"><button class="sidepane-button"><span class="glyphicon glyphicon-thumbs-up"></span> Liked Videos</button></a></li>
 					<hr>
 				</ul>
+				<div id="categoryTitle">Category</div>
+				<ul type="none" id="categoryList">
+				<?php
+
+					$sql="select category_name, category_id from categories where category_id in 
+					( select distinct(category_id) from videos where status in ('N', 'A'));";
+
+					$result=$conn->query($sql);
+
+					while($row=$result->fetch_assoc())
+					{
+						echo '<li><a href="categories.php?category='.$row['category_id'].'">
+						<button class="categoryButton">'.substr($row['category_name'],0,20).'</button>
+						</a></li>';
+					}
+				?>			
+				</ul>
 			</div>
 			<div class="col-xs-9" id="main-body">
 				<div id="main-body-header">
@@ -170,15 +217,8 @@ function signOut() {
 					<u><a href="statistics.php">Stats</a></u>
 				</div>
 				<div id="main-body-content">
+					
 					<?php
-					$servername = "localhost";
-					$username = "root";
-					$password = "ravi";
-					$dbname = "pixeo";
-					$conn = new mysqli($servername, $username, $password, $dbname);
-					if ($conn->connect_error) {
-					    die("Connection failed: " . $conn->connect_error);
-					}
 					$uname=$_COOKIE['username'];
 					$sql="select user_id from GUser where user_username='$uname'";
 					$result=$conn->query($sql);
@@ -205,8 +245,8 @@ function signOut() {
 
 				        // Create the data table.
 				        var data = new google.visualization.DataTable();
-				        data.addColumn('string', 'Topping');
-				        data.addColumn('number', 'Slices');
+				        data.addColumn('string', 'DateTime');
+				        data.addColumn('number', 'Video Size(MB)');
 				        data.addRows([
 				        <?php while($row2=$result->fetch_assoc())
 				        	  {	
@@ -237,6 +277,16 @@ function signOut() {
 					<b>Your Uploads In This Year</b>
 					<br>
 					<br>
+					
+				</div>
+				<div id="site-description">
+					<img src="pixeo.png" width="80">
+					<br>
+					P I <b> X</b> E O
+					<br>
+					<br>
+					Developed by <b>Ravi Prakash</b>
+
 				</div>
 			</div>
 		</div>

@@ -1,7 +1,7 @@
 <?php
 	$servername = "localhost";
-	$username = "root";
-	$password = "ravi";
+	$username = "pixeo_root";
+	$password = "root@123";
 	$dbname = "pixeo";
 	$conn = new mysqli($servername, $username, $password, $dbname);
 	if ($conn->connect_error) {
@@ -47,7 +47,7 @@
 				$sql="select likes,dislikes from videos where video_id=$vid";
 				$result=$conn->query($sql);
 				$row=$result->fetch_assoc();
-				$str=$row['likes'].",".$row['dislikes'];
+				$str=$row['likes'].",".$row['dislikes'].",0";
 				echo $str;
 			}
 			else
@@ -66,7 +66,7 @@
 					$sql="select likes,dislikes from videos where video_id=$vid";
 					$result=$conn->query($sql);
 					$row=$result->fetch_assoc();
-					$str=$row['likes'].",".$row['dislikes'];
+					$str=$row['likes'].",".$row['dislikes'].",1";
 					echo $str;
 				}
 				else
@@ -79,7 +79,7 @@
 					$sql="select likes,dislikes from videos where video_id=$vid";
 					$result=$conn->query($sql);
 					$row=$result->fetch_assoc();
-					$str=$row['likes'].",".$row['dislikes'];
+					$str=$row['likes'].",".$row['dislikes'].",1";
 					echo $str;
 				}
 			}
@@ -99,7 +99,7 @@
 				$sql="select likes,dislikes from videos where video_id=$vid";
 				$result=$conn->query($sql);
 				$row=$result->fetch_assoc();
-				$str=$row['likes'].",".$row['dislikes'];
+				$str=$row['likes'].",".$row['dislikes'].",0";
 				echo $str;
 			}
 			else
@@ -118,7 +118,7 @@
 					$sql="select likes,dislikes from videos where video_id=$vid";
 					$result=$conn->query($sql);
 					$row=$result->fetch_assoc();
-					$str=$row['likes'].",".$row['dislikes'];
+					$str=$row['likes'].",".$row['dislikes'].",-1";
 					echo $str;
 				}
 				else
@@ -131,7 +131,7 @@
 					$sql="select likes,dislikes from videos where video_id=$vid";
 					$result=$conn->query($sql);
 					$row=$result->fetch_assoc();
-					$str=$row['likes'].",".$row['dislikes'];
+					$str=$row['likes'].",".$row['dislikes'].",-1";
 					echo $str;
 				}
 			}
@@ -150,19 +150,95 @@
 		}
 		else if($_GET['value']=='views')
 		{
-			$sql="select * from history where video_id=$vid and user_id=$uid";
-			$result=$conn->query($sql);
-			if ($result->num_rows == 0) 
+			if(isset($_GET['u_name']))
 			{
-				$conn->begin_transaction(MYSQLI_TRANS_START_READ_WRITE);
-				$conn->query("update videos set views=views+1 where video_id=$vid");
-				$conn->query("Insert into history(video_id,user_id) values($vid,$uid)");
-				$conn->commit();
+				$sql="select * from history where video_id=$vid and user_id=$uid";
+				$result=$conn->query($sql);
+				if ($result->num_rows == 0) 
+				{
+					$conn->begin_transaction(MYSQLI_TRANS_START_READ_WRITE);
+					$conn->query("update videos set views=views+1 where video_id=$vid");
+					$conn->query("Insert into history(video_id,user_id) values($vid,$uid)");
+					$conn->commit();
+				}
+				$sql="select views from videos where video_id=$vid";
+				$result=$conn->query($sql);
+				$row=$result->fetch_assoc();
+				$str=$row['views'];
+				echo $str;
 			}
-			$sql="select views from videos where video_id=$vid";
+			else{
+				$conn->query("update videos set views=views+1 where video_id=$vid");
+				$sql="select views from videos where video_id=$vid";
+				$result=$conn->query($sql);
+				$row=$result->fetch_assoc();
+				$str=$row['views'];
+				echo $str;
+			
+			}
+		}
+		else if($_GET['value']=='delete')
+		{
+			$sql="select video_path,videothumbnail_path from videos where video_id=$vid";
 			$result=$conn->query($sql);
 			$row=$result->fetch_assoc();
-			$str=$row['views'];
+			$deleteVideo_path="rm ".$row['video_path']."";
+			$deleteVideoThumbnail_path="rm ".$row['videothumbnail_path']."";
+			exec($deleteVideo_path,$output,$returnVal1);
+			exec($deleteVideoThumbnail_path,$output,$returnVal2);
+			if($returnVal1==0 && $returnVal2==0)
+			{
+				$sql="Delete from videos where video_id=$vid;";
+				$conn->query($sql);
+				echo "Deleted";
+			}
+			else{
+				echo "Delete";
+			}
+		}
+		else if($_GET['value']=='deny' or $_GET['value']=='allow')
+		{
+			if($_GET['value']=='deny')
+			{
+				$sql="update videos set status='D',remarks='Denied by ".$_GET['u_name']."' where video_id=$vid;";
+				$conn->query($sql);
+				echo "Denied";
+			}
+			else
+			{
+				$sql="update videos set status='A',remarks='Allowed by ".$_GET['u_name']."' where video_id=$vid;";
+				$conn->query($sql);
+				echo "Allowed";
+			}
+		}
+		else if($_GET['value']=='chklikedislike')
+		{
+			$sql="select * from liked_videos where video_id=$vid and user_id=$uid";
+			$result=$conn->query($sql);
+			if($result->num_rows>0)
+			{
+				echo "1";
+			}
+			$sql="select * from disliked_videos where video_id=$vid and user_id=$uid";
+			$result1=$conn->query($sql);
+			if($result1->num_rows>0)
+			{
+				echo "-1";
+			}
+			if($result->num_rows==0 and $result1->num_rows==0)
+			{
+				echo "0";
+			}
+		}
+		else if($_GET['value']=='getCategoryList')
+		{
+			$sql="select category_name, category_id from categories where category_id in ( select distinct(category_id) from videos );";
+			$result=$conn->query($sql);
+			$str="";
+			while($row=$result->fetch_assoc())
+			{
+				$str=$str.$row['category_name'].":".$row['category_id'].",";
+			}
 			echo $str;
 		}
 	}

@@ -1,5 +1,20 @@
-<?php if($_COOKIE['username']!="''")
-		{
+<?php
+header("Cache-Control: no-store, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+ 
+if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
+{
+	$servername = "localhost";
+	$username = "pixeo_user";
+	$password = "user@123";
+	$dbname = "pixeo";
+			
+	$conn = new mysqli($servername, $username, $password, $dbname);
+	if ($conn->connect_error) {
+	    die("Connection failed: " . $conn->connect_error);
+	}
+	$sql="select admin from GUser where user_username='".$_COOKIE['username']."'";
+	$result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,6 +23,7 @@
 		Pixeo | A Video Sharing Hub
 	</title>
 	<meta charset="utf-8">
+	<link rel="shortcut icon" href="pixeo.png">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="pixeostyle.css">
@@ -34,18 +50,25 @@ function onSignIn(googleUser) {
 	  //xmlhttp.open("GET", "userdata.php?u_email=" +email+"&u_name="+email1+"&name="+name, true);
 	  var username=profile.getEmail();
 	  var ind=username.indexOf('@');
-	  username=username.substring(0, ind);
-	  var xmlhttp = new XMLHttpRequest();
-	  xmlhttp.open("GET", "userdata.php?user_profilepic="+profile.getImageUrl()+"&user_email="+profile.getEmail()+"&user_username="+username+"&user_name="+profile.getName(), true);
-      xmlhttp.send();
-	  document.getElementById("imgsrc").src=googleUser.getBasicProfile().getImageUrl();
-	  document.getElementById("box-img").src=googleUser.getBasicProfile().getImageUrl();
-	  document.getElementById("box-name").innerHTML=profile.getName();
-	  document.getElementById("box-email").innerHTML=profile.getEmail();
-	  document.cookie = "username="+username;
-	  document.getElementById("signin").style.display="none";
-	  document.getElementById("disc").style.display="block";
-	  //console.log(document.cookie);
+	  var domain=username.substring(ind+1);
+	  if(domain=='iiits.in')
+	  {
+		  username=username.substring(0, ind);
+		  var xmlhttp = new XMLHttpRequest();
+		  xmlhttp.open("GET", "userdata.php?user_profilepic="+profile.getImageUrl()+"&user_email="+profile.getEmail()+"&user_username="+username+"&user_name="+profile.getName(), true);
+	      xmlhttp.send();
+		  document.getElementById("imgsrc").src=googleUser.getBasicProfile().getImageUrl();
+		  document.getElementById("box-img").src=googleUser.getBasicProfile().getImageUrl();
+		  document.getElementById("box-name").innerHTML=profile.getName();
+		  document.getElementById("box-email").innerHTML=profile.getEmail();
+		  document.cookie = "username="+username;
+		  document.getElementById("signin").style.display="none";
+		  document.getElementById("disc").style.display="block";
+		  //console.log(document.cookie);
+	  }
+	  else{
+	  	signOut();
+	  }
 }
 function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
@@ -90,6 +113,16 @@ function signOut() {
 					<div id="box-name"></div>
 					<div id="box-email"></div>
 					<hr>
+					<?php
+					if($result->num_rows>0)
+					{
+						$row = $result->fetch_assoc();
+						if($row['admin']=='Y')
+						{
+							echo "<a href='admin.php'><button id='adminButton'>Admin</button></a><br><br>";
+						}
+					}
+					?>
 					<button onclick="signOut()" id="signout">Sign Out</button>
 				</div>
 			</div>
@@ -105,20 +138,27 @@ function signOut() {
 					<li><a href="liked_videos.php"><button class="sidepane-button" id="likedvideos"><span class="glyphicon glyphicon-thumbs-up"></span> Liked Videos</button></a></li>
 					<hr>
 				</ul>
+				<div id="categoryTitle">Category</div>
+				<ul type="none" id="categoryList">
+				<?php
+
+					$sql="select category_name, category_id from categories where category_id in 
+					( select distinct(category_id) from videos where status in ('N', 'A'));";
+
+					$result=$conn->query($sql);
+
+					while($row=$result->fetch_assoc())
+					{
+						echo '<li><a href="categories.php?category='.$row['category_id'].'">
+						<button class="categoryButton">'.substr($row['category_name'],0,20).'</button>
+						</a></li>';
+					}
+				?>			
+				</ul>
 			</div>
 			<div class="col-xs-7" id="main-body">
+
 				<?php
-				$servername = "localhost";
-				$username = "root";
-				$password = "ravi";
-				$dbname = "pixeo";
-				$count=0;
-				$sql="";
-				$conn = new mysqli($servername, $username, $password, $dbname);
-				if ($conn->connect_error) {
-				    die("Connection failed: " . $conn->connect_error);
-				}
-				$value=$_GET['field'];
 				$uname=$_COOKIE['username'];     //find user id from username
 				$sql="select user_id from GUser where user_username='$uname'";
 				$result = $conn->query($sql);
@@ -127,7 +167,7 @@ function signOut() {
 				$sql = "select b.views views,c.user_username user_username,b.videothumbnail_path videothumbnail_path,
 					b.video_id video_id,b.video_name video_name from liked_videos a 
 					join videos b on a.video_id=b.video_id 
-					join GUser c on c.user_id=b.user_id where a.user_id=$uid;";
+					join GUser c on c.user_id=b.user_id where a.user_id=$uid and b.status in ('N', 'A');";
 				//$sql = "select views,user_username,videothumbnail_path,video_id,video_name;"
 				if($sql!="")
 				{
@@ -142,10 +182,10 @@ function signOut() {
 					   		echo "<tr>";
 					   		$i=0;
 					   		$video_id=$row['video_id'];
-					   		echo '<td>';
-							echo '<a href="watch.php?vid='.$video_id.'"><img src='.$row['videothumbnail_path'].'width="250"></a>';
+					   		echo '<td class="td-thumbnail">';
+							echo '<a href="watch.php?vid='.$video_id.'"><img src='.$row['videothumbnail_path'].'width="250" height="140"></a>';
 							echo "</td>";
-							echo '<td style="padding:20px;vertical-align:top">';
+							echo '<td style="padding:20px;vertical-align:top" td="td-details">';
 							echo '<a href="watch.php?vid='.$video_id.'">'.$row['video_name'].'</a><br>';
 							echo "<div><font size='2.5' color='grey' >".$row['user_username']."</font></div>";
 							echo "<div><font size='2.5' color='grey' >".$row['views']." Views</font></div>";
@@ -161,6 +201,17 @@ function signOut() {
 				}
 				$conn->close();
 				?>
+
+				<div id="site-description">
+					<img src="pixeo.png" width="80">
+					<br>
+					P I <b> X</b> E O
+					<br>
+					<br>
+					Developed by <b>Ravi Prakash</b>
+
+				</div>
+				
 			</div>
 		</div>
 	</div>

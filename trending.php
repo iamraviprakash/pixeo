@@ -1,8 +1,7 @@
-<?php 
-header("Cache-Control: no-store, must-revalidate, max-age=0");
-header("Pragma: no-cache");
-if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
-{
+<?php
+	header("Cache-Control: no-store, must-revalidate, max-age=0");
+	header("Pragma: no-cache"); 
+
 	$servername = "localhost";
 	$username = "pixeo_user";
 	$password = "user@123";
@@ -32,45 +31,9 @@ if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
 	<script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <style>
-	#myspace{
+	#trending{
 		background: grey;
 		color: white;
-	}
-	#main-body-header{
-		width:100%;
-		height:30vh;
-		background: grey;
-		min-height: 200px;
-		text-align: center;
-		padding-top: 50px;
-	}
-	#profilepic{
-		border: 2px solid white;
-	}
-	#profilename{
-		color:white;
-		font-size: 1.4em;
-		font-weight: bold;
-	}
-	#main-body-content{
-		color: grey;
-		padding: 10px;
-	}
-	#main-body-linkpanel{
-		color:#66a3ff;
-		font-size: 1em;
-		font-weight: bold;
-		text-align: center;
-	}
-	#welcome-content{
-		width:100%;
-		text-align: center;
-		font-weight: bold;
-		font-size: 1.2em;
-	}
-	#uploaded-content,#stats-content,#upload-content{
-		width: 100%;
-		font-size: 1em;
 	}
 </style>
 <script>
@@ -99,9 +62,7 @@ function onSignIn(googleUser) {
 		  document.cookie = "username="+username;
 		  document.getElementById("signin").style.display="none";
 		  document.getElementById("disc").style.display="block";
-		  document.getElementById("profilename").innerHTML=profile.getName();
-		  document.getElementById("profilepic").src=profile.getImageUrl();
-		  //console.log(document.cookie);
+	  		//console.log(document.cookie);
 	  }
 	  else{
 	  	signOut();
@@ -129,16 +90,13 @@ function signOut() {
   }
 </script>
 <body>
-	<?php
-				
-	?>
 	<div class="container-fluid">
 		<div class="row" id="header">
 			<div class="col-xs-9">
 				<form action="search.php" id="header-search">
-					
+
 					<font id="logo-text">PI<b>X</b>EO</font><input type="text" placeholder="Search" name="field" id="header-searchbar">
-					<button  id="header-searchbutton"><span class="glyphicon glyphicon-search"></span></button>
+					<button id="header-searchbutton"><span class="glyphicon glyphicon-search"></span></button>
 				</form>
 			</div>
 			<div class="col-xs-1" id="header-upload">
@@ -171,9 +129,9 @@ function signOut() {
 		<div class="row" id="main">
 			<div class="col-xs-2" id="sidepane">
 				<ul type="none">
-					<li><a href="index.php"><button class="sidepane-button" ><span class="glyphicon glyphicon-home"></span> Home</button></a></li>
-					<li><a href="trending.php"><button class="sidepane-button"><span class="glyphicon glyphicon-fire"></span> Trending</button></a></li>
-					<li><a href="myspace.php"><button class="sidepane-button" id="myspace"><span class="glyphicon glyphicon-user"></span> Myspace</button></a></li>
+					<li><a href="index.php"><button class="sidepane-button"><span class="glyphicon glyphicon-home"></span> Home</button></a></li>
+					<li><a href="trending.php"><button class="sidepane-button" id="trending"><span class="glyphicon glyphicon-fire"></span> Trending</button></a></li>
+					<li><a href="myspace.php"><button class="sidepane-button"><span class="glyphicon glyphicon-user"></span> Myspace</button></a></li>
 					<li><a href="history.php"><button class="sidepane-button"><span class="glyphicon glyphicon-hourglass"></span> History</button></a></li>
 					<hr>
 					<li><a href="liked_videos.php"><button class="sidepane-button"><span class="glyphicon glyphicon-thumbs-up"></span> Liked Videos</button></a></li>
@@ -194,49 +152,48 @@ function signOut() {
 						<button class="categoryButton">'.substr($row['category_name'],0,20).'</button>
 						</a></li>';
 					}
-					$conn->close();
-				?>			
+				?>
 				</ul>
 			</div>
-			<div class="col-xs-9" id="main-body">
-				<div id="main-body-header">
-					<img id="profilepic" src="" width="80">
-					<br>
-					<br>
-					<div id="profilename"></div>
-				</div>
-				<div id="main-body-linkpanel">
-					<a href="upload.php">Upload</a>&nbsp;&nbsp;<a href="uploaded.php">Uploaded</a>&nbsp;&nbsp;
-					<a href="statistics.php">Stats</a>
-				</div>
-				<div id="main-body-content">
-					<br>
-					<div id="welcome-content">
-						HEY! THIS IS YOUR CONTROL SPACE. <br>HERE YOU CAN FIND AND EDIT WHAT YOU HAVE DONE TILL NOW.
-					</div>
-					<hr>
-					<div id="upload-content">
-						
-						<b>UPLOAD : </b>
-						In this page you can upload the vidoes which you want to share with others.	
-						
-					</div>
-					<hr>
-					<div id="uploaded-content">
-						
-						<b>UPLOADED : </b>
-						In this page you can see and delete the vidoes which you have uploaded.
-						
-					</div>
-					<hr>
-					<div id="stats-content">
-						
-						<b>STATS : </b>
-						In this page you can see your upload statistics in numbers and graph.	
-						
-					</div>
-					<hr>
-				</div>
+			<div class="col-xs-7" id="main-body">
+				<?php
+
+				$sql = "select b.views views,c.user_username user_username,b.videothumbnail_path videothumbnail_path,
+				b.video_id video_id,b.video_name video_name from videos b 
+				join GUser c on b.user_id=c.user_id where b.status in ('N', 'A') order by (views*100000)/TIMEDIFF(now(),upload_time) desc limit 20;";
+				//$sql = "select views,user_username,videothumbnail_path,video_id,video_name;"
+				if($sql!="")
+				{
+					$result = $conn->query($sql);
+					//echo "<div style='left:850px;top:0px;position:absolute;color:grey;padding-top:30px;'>No of results:".$result->num_rows."</div><br>";
+					$c_name = $result->fetch_fields();
+					if ($result->num_rows > 0) 
+					{	echo "<hr>";
+						echo "<table cellpadding='20'>";
+					   	while($row=$result->fetch_assoc()) 
+					   	{
+					   		echo "<tr>";
+					   		$i=0;
+					   		$video_id=$row['video_id'];
+					   		echo '<td class="td-thumbnail">';
+							echo '<a href="watch.php?vid='.$video_id.'"><img src='.$row['videothumbnail_path'].'width="250" height="140"></a>';
+							echo "</td>";
+							echo '<td style="padding:20px;vertical-align:top" class="td-details">';
+							echo '<a href="watch.php?vid='.$video_id.'">'.$row['video_name'].'</a><br>';
+							echo "<div><font size='2.5' color='grey' >".$row['user_username']."</font></div>";
+							echo "<div><font size='2.5' color='grey' >".$row['views']." Views</font></div>";
+							echo '</td>';
+					   		echo "</tr>";
+						}
+						echo "</table>";
+					} 
+					else 
+					{
+				   		echo "<br><br><center>No relevant results found.</center>";
+					}
+				}
+				$conn->close();
+				?>
 				<div id="site-description">
 					<img src="pixeo.png" width="80">
 					<br>
@@ -246,13 +203,8 @@ function signOut() {
 					Developed by <b>Ravi Prakash</b>
 
 				</div>
-				
 			</div>
 		</div>
 	</div>
 </body>
 </html>
-<?php }
-	else
-		header('Location:index.php');
- ?>

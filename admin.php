@@ -1,19 +1,21 @@
-<?php 
+<?php
 header("Cache-Control: no-store, must-revalidate, max-age=0");
-header("Pragma: no-cache");
-if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
-{
-	$servername = "localhost";
-	$username = "pixeo_user";
-	$password = "user@123";
-	$dbname = "pixeo";
+header("Pragma: no-cache"); 
+$servername = "localhost";
+$username = "pixeo_user";
+$password = "user@123";
+$dbname = "pixeo";
 			
-	$conn = new mysqli($servername, $username, $password, $dbname);
-	if ($conn->connect_error) {
-	    die("Connection failed: " . $conn->connect_error);
-	}
-	$sql="select admin from GUser where user_username='".$_COOKIE['username']."'";
-	$result = $conn->query($sql);
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+$sql="select admin from GUser where user_username='".$_COOKIE['username']."'";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+
+if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0 && $row['admin']=='Y')
+{
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,10 +34,6 @@ if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
 	<script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <style>
-	#myspace{
-		background: grey;
-		color: white;
-	}
 	#main-body-header{
 		width:100%;
 		height:30vh;
@@ -43,14 +41,6 @@ if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
 		min-height: 200px;
 		text-align: center;
 		padding-top: 50px;
-	}
-	#profilepic{
-		border: 2px solid white;
-	}
-	#profilename{
-		color:white;
-		font-size: 1.4em;
-		font-weight: bold;
 	}
 	#main-body-content{
 		color: grey;
@@ -61,6 +51,7 @@ if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
 		font-size: 1em;
 		font-weight: bold;
 		text-align: center;
+		margin-top: 10px;
 	}
 	#welcome-content{
 		width:100%;
@@ -71,6 +62,12 @@ if($_COOKIE['username']!="''" && $_COOKIE['G_AUTHUSER_H']==0)
 	#uploaded-content,#stats-content,#upload-content{
 		width: 100%;
 		font-size: 1em;
+	}
+	table {
+	    font-size: 1.1em;
+	} 
+	td{
+	    height:135px;
 	}
 </style>
 <script>
@@ -99,8 +96,6 @@ function onSignIn(googleUser) {
 		  document.cookie = "username="+username;
 		  document.getElementById("signin").style.display="none";
 		  document.getElementById("disc").style.display="block";
-		  document.getElementById("profilename").innerHTML=profile.getName();
-		  document.getElementById("profilepic").src=profile.getImageUrl();
 		  //console.log(document.cookie);
 	  }
 	  else{
@@ -129,9 +124,6 @@ function signOut() {
   }
 </script>
 <body>
-	<?php
-				
-	?>
 	<div class="container-fluid">
 		<div class="row" id="header">
 			<div class="col-xs-9">
@@ -155,14 +147,7 @@ function signOut() {
 					<div id="box-email"></div>
 					<hr>
 					<?php
-					if($result->num_rows>0)
-					{
-						$row = $result->fetch_assoc();
-						if($row['admin']=='Y')
-						{
-							echo "<a href='admin.php'><button id='adminButton'>Admin</button></a><br><br>";
-						}
-					}
+						echo "<a href='admin.php'><button id='adminButton'>Admin</button></a><br><br>";
 					?>
 					<button onclick="signOut()" id="signout">Sign Out</button>
 				</div>
@@ -199,43 +184,11 @@ function signOut() {
 				</ul>
 			</div>
 			<div class="col-xs-9" id="main-body">
-				<div id="main-body-header">
-					<img id="profilepic" src="" width="80">
-					<br>
-					<br>
-					<div id="profilename"></div>
-				</div>
 				<div id="main-body-linkpanel">
-					<a href="upload.php">Upload</a>&nbsp;&nbsp;<a href="uploaded.php">Uploaded</a>&nbsp;&nbsp;
-					<a href="statistics.php">Stats</a>
+					<a href="admin.php"><u>Manage</u></a>&nbsp;&nbsp;<a href="newUploads.php">New Uploads</a>&nbsp;&nbsp;<a href="allowed.php">Allowed</a>&nbsp;&nbsp;
+					<a href="denied.php">Denied</a>
 				</div>
 				<div id="main-body-content">
-					<br>
-					<div id="welcome-content">
-						HEY! THIS IS YOUR CONTROL SPACE. <br>HERE YOU CAN FIND AND EDIT WHAT YOU HAVE DONE TILL NOW.
-					</div>
-					<hr>
-					<div id="upload-content">
-						
-						<b>UPLOAD : </b>
-						In this page you can upload the vidoes which you want to share with others.	
-						
-					</div>
-					<hr>
-					<div id="uploaded-content">
-						
-						<b>UPLOADED : </b>
-						In this page you can see and delete the vidoes which you have uploaded.
-						
-					</div>
-					<hr>
-					<div id="stats-content">
-						
-						<b>STATS : </b>
-						In this page you can see your upload statistics in numbers and graph.	
-						
-					</div>
-					<hr>
 				</div>
 				<div id="site-description">
 					<img src="pixeo.png" width="80">
